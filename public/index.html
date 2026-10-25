@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heatmap de liquidações · BTC · ETH · XAU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <nav class="tabs" id="tabs"><button data-tab="heat" class="on">Heatmap de liquidações</button><button data-tab="flow">Order Flow</button><button data-tab="ai">IA · Entradas</button></nav>
+<div class="view" id="viewHeat">
+  <div class="topbar">
+    <div class="rel">
+      <button class="symbtn" id="symBtn"><span class="logo" id="symLogo">BTC</span><span class="symtxt"><b id="symName">BTCUSDT</b><small id="symSub">Bitcoin · Binance Futures</small></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="menu" id="symMenu"></div>
+    </div>
+    <div class="group" id="rangeSeg" role="group"></div>
+    <div class="group" id="exSeg" role="group"></div>
+    <div class="chips" id="chips"></div>
+    <div class="rel">
+      <button class="gbtn" id="cfgBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg> Configurações</button>
+      <div class="pop" id="cfgPop" hidden></div>
+    </div>
+    <div class="right"><span class="num price" id="price"></span><span class="status connecting" id="status"><i></i><span>Conectando</span></span></div>
+  </div>
+  <div class="main">
+    <div class="chartwrap">
+      <div class="stage" id="stage">
+        <canvas id="heat"></canvas>
+        <div id="chart"></div>
+        <canvas id="overlay"></canvas>
+        <div class="readout num" id="readout"></div>
+        <div class="loading" id="loading"><div><span class="pulse">⚡</span> <span id="loadingTxt"></span></div></div>
+      </div>
+      <div class="profile" id="profileBox" title="Liquidações estimadas ainda esperando em cada preço (longs abaixo do preço, shorts acima)"><canvas id="profile"></canvas><span>PERFIL</span></div>
+    </div>
+    <aside>
+      <section>
+        <div class="h2row"><h2>Mapa de liquidações</h2><button class="info" id="keyBtn" aria-label="Legenda">i</button></div>
+        <div id="key" class="key" hidden></div>
+        <div id="map"></div>
+      </section>
+      <section><h2>Cascata de liquidações</h2><div id="casc"></div></section>
+      <section><h2>Clusters de liquidações</h2><div id="clusters"></div></section>
+      <section><h2>Liquidações ao vivo</h2><div id="live"></div></section>
+    </aside>
+  </div>
+</div>
+
+<div class="view" id="viewFlow" hidden>
+  <div class="topbar">
+    <div class="rel">
+      <button class="symbtn" id="ofSymBtn"><span class="logo" id="ofSymLogo">BTC</span><span class="symtxt"><b id="ofSymName">BTCUSDT</b><small id="ofSymSub"></small></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="menu wide" id="ofSymMenu"></div>
+    </div>
+    <div class="group" id="ofTf" role="group"></div>
+    <div class="chips" id="ofChips"></div>
+    <div class="rel">
+      <button class="gbtn" id="ofCfgBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg> <span id="ofSettingsLab"></span></button>
+      <div class="pop" id="ofCfgPop" hidden></div>
+    </div>
+    <div class="right"><span class="num price" id="ofPrice"></span><span class="status connecting" id="ofStatus"><i></i><span>Conectando</span></span></div>
+  </div>
+  <div class="main">
+    <div class="chartwrap">
+      <div class="stage" id="ofWrap">
+        <canvas id="ofHeat"></canvas>
+        <div id="ofChart"></div>
+        <canvas id="ofOverlay"></canvas>
+        <div class="readout num" id="ofReadout"></div>
+        <div class="lab" id="ofCvdLab"></div>
+        <div class="lab" id="ofDeltaLab"></div>
+        <div class="loading" id="ofLoading"><div><span class="pulse">⚡</span> <span id="ofLoadingTxt"></span></div></div>
+      </div>
+      <div class="book" id="ofBookTitle"><canvas id="ofDepth"></canvas><span id="ofBookLab"></span></div>
+    </div>
+    <aside class="of-aside">
+      <section><h2 id="ofNearH"></h2><div class="grid2" id="ofStats"></div><p class="small" id="ofNote"></p></section>
+      <section class="grow">
+        <div class="h2row"><h2 id="ofGapsH"></h2><button class="info" id="ofHowBtn" aria-label="?">?</button></div>
+        <div class="key" id="ofKey" hidden></div>
+        <div class="gaps" id="ofGaps"></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="view" id="viewAI" hidden>
+  <div class="topbar">
+    <select id="aiSym" class="sel" aria-label="Moeda"></select>
+    <button class="gbtn" id="aiRun">Analisar agora</button>
+    <label class="chip autochk"><input type="checkbox" id="aiAuto"> Atualizar sozinho (90 s)</label>
+    <span class="ai-status" id="aiStatus"></span>
+    <div class="right"><span class="num price" id="aiPrice"></span></div>
+  </div>
+  <div class="aibody">
+    <div class="aiwrap">
+      <section class="aisec" id="aiSummary"></section>
+      <div class="aicols"><section class="aisec" id="aiLong"></section><section class="aisec" id="aiShort"></section></div>
+      <section class="aisec"><h2>Leitura por timeframe e por janela do heatmap</h2><div id="aiTf"></div></section>
+      <section class="aisec"><h2>Mapa de zonas (do preço mais alto ao mais baixo)</h2><div class="ladder" id="aiMap"></div></section>
+      <section class="aisec"><details class="how"><summary>Como esta análise funciona</summary>
+        <p>Não é uma caixa-preta nem um modelo treinado: são <b>regras fixas e explicáveis</b> que juntam as mesmas ferramentas das outras abas.</p>
+        <ul>
+          <li><b>FVG</b> (Order Flow, 1m a 4h): gaps ainda não preenchidos viram zonas de suporte (alta) ou resistência (baixa), pesados pela nota 0–100 do gap e pelo timeframe (4h pesa mais que 1m). A <b>linha de 50%</b> vira o ponto de entrada ideal.</li>
+          <li><b>Clusters de liquidação</b> (Heatmap, 1H a 24H): onde há muita liquidação acumulada o preço tende a ir buscar (varredura de stops). Também servem de <b>alvo</b> do lado oposto.</li>
+          <li><b>Paredes do livro</b>, <b>grandes trades</b> e <b>pilhas de desequilíbrio do footprint</b>: confirmam se há gente defendendo a zona.</li>
+          <li><b>CVD</b>: tendência e divergências entre preço e fluxo agressivo, em todos os timeframes, reforçam o lado compra ou venda.</li>
+          <li>Níveis do mesmo lado que ficam próximos são fundidos em uma <b>zona</b>; quanto mais ferramentas <i>diferentes</i> coincidem, maior a nota (0–100). Zonas com uma ferramenta só aparecem com aviso.</li>
+          <li><b>Stop</b>: além da borda da zona (e do cluster de liquidação, se houver) mais meio ATR do timeframe dominante. <b>Alvos</b>: as próximas zonas do lado oposto; se não houver, alvos técnicos de 1,5R, 2,5R e 4R.</li>
+        </ul>
+        <p>Limites: o heatmap de liquidações é uma <b>estimativa</b> (as exchanges não publicam posições); o footprint e os grandes trades cobrem só os trades recentes baixados na hora; paredes do livro podem sumir. Ninguém prevê o mercado: use como mapa de áreas de interesse, com gestão de risco sua.</p>
+      </details></section>
+      <p class="disclaimer">Análise automática com dados públicos, apenas informativa. Não é recomendação de compra ou venda nem garantia de resultado; operar alavancado pode gerar perdas maiores que o capital.</p>
+    </div>
+  </div>
+</div>
+</div>
+<script src="vendor/lightweight-charts.js"></script>
+<script src="engine.js"></script>
+<script src="data.js"></script>
+<script src="flowcore.js"></script>
+<script src="orderflow.js"></script>
+<script src="analysis-core.js"></script>
+<script src="analysis.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
